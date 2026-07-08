@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulir Absensi Training</title>
+<style>
+  :root{
+    --ink:#241c1c;
+    --paper:#faf6f4;
+    --card:#ffffff;
+    --line:#e8d9d4;
+    --accent:#b3242b;
+    --accent-soft:#fbe9e7;
+    --danger:#8a2a20;
+    --muted:#7d6f6c;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    padding:32px 16px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  header{margin-bottom:24px;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:6px;
+  }
+  h1{font-size:26px;margin:0 0 6px;font-weight:700;}
+  .sub{color:var(--muted);font-size:14px;margin:0;}
+  form{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px 26px;
+  }
+  .field{margin-bottom:20px;}
+  label{
+    display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);
+  }
+  label .opt{color:var(--muted);font-weight:400;}
+  input[type=text], input[type=date], select{
+    width:100%;padding:11px 12px;border:1px solid var(--line);
+    border-radius:8px;font-size:15px;background:#fdfcfa;color:var(--ink);
+    font-family:inherit;
+  }
+  input:focus, select:focus{
+    outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.row2{grid-template-columns:1fr;}}
+
+  .sig-wrap{
+    border:1px dashed var(--line);border-radius:8px;background:#fdfcfa;
+    padding:8px;
+  }
+  canvas{
+    width:100%;height:160px;display:block;border-radius:6px;
+    background:#fff;touch-action:none;cursor:crosshair;
+    border:1px solid var(--line);
+  }
+  .sig-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .sig-hint{font-size:12px;color:var(--muted);}
+  .btn-clear{
+    background:none;border:1px solid var(--line);color:var(--ink);
+    padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;
+  }
+  .btn-clear:hover{border-color:var(--danger);color:var(--danger);}
+
+  .submit{
+    width:100%;padding:13px;margin-top:8px;
+    background:var(--accent);color:#fff;border:none;border-radius:8px;
+    font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em;
+  }
+  .submit:disabled{opacity:.6;cursor:not-allowed;}
+  .submit:hover:not(:disabled){background:#254a40;}
+
+  .status{
+    margin-top:14px;padding:12px 14px;border-radius:8px;font-size:14px;display:none;
+  }
+  .status.ok{display:block;background:var(--accent-soft);color:var(--accent);border:1px solid #bcd6c8;}
+  .status.err{display:block;background:#fbeae7;color:var(--danger);border:1px solid #f0c3ba;}
+
+  .radio-group{display:flex;gap:18px;}
+  .radio-option{
+    display:flex;align-items:center;gap:6px;font-weight:500;font-size:14px;
+    color:var(--ink);cursor:pointer;margin-bottom:0;
+  }
+  .radio-option input{width:auto;accent-color:var(--accent);cursor:pointer;}
+
+  .req{color:var(--danger);}
+
+  .success-screen{
+    display:none;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:48px 28px;text-align:center;
+  }
+  .success-screen.show{display:block;}
+  .success-icon{
+    width:64px;height:64px;border-radius:50%;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+  }
+  .success-icon svg{width:30px;height:30px;}
+  .success-title{font-size:20px;font-weight:700;margin:0 0 6px;color:var(--ink);}
+  .success-sub{color:var(--muted);font-size:14px;margin:0 0 24px;}
+  .btn-again{
+    background:var(--accent);color:#fff;border:none;padding:11px 22px;
+    border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .btn-again:hover{background:#8f1d22;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Internal · Kehadiran</div>
+    <h1>Formulir Absensi Training</h1>
+    <p class="sub">Isi data berikut setiap mengikuti kegiatan training di kantor.</p>
+  </header>
+
+  <form id="absensiForm">
+    <div class="field">
+      <label>Nama Training / Kegiatan <span class="req">*</span></label>
+      <input type="text" id="namaTraining" required placeholder="Contoh: Training Keselamatan Kerja (K3)">
+    </div>
+
+    <div class="field">
+      <label>Metode Training <span class="req">*</span></label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="metode" id="metodeOnline" value="Online" required> Online
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="metode" id="metodeOffline" value="Offline" required> Offline
+        </label>
+      </div>
+    </div>
+
+    <div class="field" id="lokasiField" style="display:none;">
+      <label>Tempat Training <span class="req">*</span></label>
+      <input type="text" id="lokasi" placeholder="Contoh: Training Room Lt. 1">
+    </div>
+
+    <div class="field">
+      <label>Tanggal Training <span class="req">*</span></label>
+      <input type="date" id="tanggal" required>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Jam Mulai <span class="req">*</span></label>
+        <input type="time" id="jamMulai" required>
+      </div>
+      <div class="field">
+        <label>Jam Selesai <span class="req">*</span></label>
+        <input type="time" id="jamSelesai" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nama Lengkap <span class="req">*</span></label>
+      <input type="text" id="namaPeserta" required placeholder="Nama sesuai KTP/ID karyawan">
+    </div>
+
+    <div class="field">
+      <label>NIK Karyawan <span class="req">*</span></label>
+      <input type="text" id="nik" required placeholder="Nomor Induk Karyawan">
+    </div>
+
+    <div class="field">
+      <label>Department <span class="req">*</span></label>
+      <select id="divisi" required>
+        <option value="">— Pilih —</option>
+        <option>Coal and Ash Handling</option>
+        <option>Finance & Accounting</option>
+        <option>HRGAIT</option>
+        <option>HSE</option>
+        <option>Logistic</option>
+        <option>Maintenance</option>
+        <option>Operation</option>
+        <option>Plant Service</option>
+        <option>Procurement</option>
+        <option>Site Management</option>
+        <option>Tech Support</option>
+        <option>Tech Team</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Tanda Tangan Digital <span class="req">*</span></label>
+      <div class="sig-wrap">
+        <canvas id="sigPad"></canvas>
+        <div class="sig-actions">
+          <span class="sig-hint">Gambar tanda tangan dengan mouse / jari di layar sentuh</span>
+          <button type="button" class="btn-clear" id="clearSig">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="submit" id="submitBtn">Kirim Absensi</button>
+    <div class="status" id="statusBox"></div>
+  </form>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 13l4 4L19 7" stroke="#b3242b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="success-title">Data Anda berhasil di submit</div>
+    <p class="success-sub">Terima kasih, kehadiran Anda sudah tercatat.</p>
+    <button type="button" class="btn-again" id="btnAgain">Isi Absensi Lagi</button>
+  </div>
+</div>
+
+<script>
+// ====== KONFIGURASI ======
+// Ganti URL di bawah ini dengan URL Web App hasil deploy Google Apps Script Anda.
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbytvyQpdLoC4HKt4__ugpgXxXi-ycdDWvWq3FBxipiQoUR5O4Hmu6Lrim5g6r5irC8/exec";
+// ==========================
+
+document.getElementById('tanggal').valueAsDate = new Date();
+
+// --- Toggle field Tempat Training ---
+const lokasiField = document.getElementById('lokasiField');
+const lokasiInput = document.getElementById('lokasi');
+document.querySelectorAll('input[name="metode"]').forEach(radio=>{
+  radio.addEventListener('change', ()=>{
+    if(document.getElementById('metodeOffline').checked){
+      lokasiField.style.display = 'block';
+      lokasiInput.required = true;
+    }else{
+      lokasiField.style.display = 'none';
+      lokasiInput.required = false;
+      lokasiInput.value = '';
+    }
+  });
+});
+
+// --- Signature Pad ---
+const canvas = document.getElementById('sigPad');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let hasSignature = false;
+
+function resizeCanvas(){
+  const ratio = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.scale(ratio, ratio);
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#241c1c';
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  if(e.touches && e.touches.length){
+    return {x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top};
+  }
+  return {x: e.clientX - rect.left, y: e.clientY - rect.top};
+}
+function start(e){
+  drawing = true; hasSignature = true;
+  const p = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  e.preventDefault();
+}
+function move(e){
+  if(!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  e.preventDefault();
+}
+function end(){ drawing = false; }
+
+canvas.addEventListener('mousedown', start);
+canvas.addEventListener('mousemove', move);
+window.addEventListener('mouseup', end);
+canvas.addEventListener('touchstart', start, {passive:false});
+canvas.addEventListener('touchmove', move, {passive:false});
+canvas.addEventListener('touchend', end);
+
+document.getElementById('clearSig').addEventListener('click', ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSignature = false;
+});
+
+// --- Submit ---
+const form = document.getElementById('absensiForm');
+const statusBox = document.getElementById('statusBox');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  statusBox.className = 'status';
+  statusBox.style.display = 'none';
+
+  if(!hasSignature){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Mohon isi tanda tangan digital sebelum mengirim.';
+    return;
+  }
+
+  const payload = {
+    namaTraining: document.getElementById('namaTraining').value,
+    metode: document.querySelector('input[name="metode"]:checked')?.value || '',
+    lokasi: document.getElementById('lokasi').value,
+    tanggal: document.getElementById('tanggal').value,
+    jamMulai: document.getElementById('jamMulai').value,
+    jamSelesai: document.getElementById('jamSelesai').value,
+    namaPeserta: document.getElementById('namaPeserta').value,
+    nik: document.getElementById('nik').value,
+    divisi: document.getElementById('divisi').value,
+    tandaTangan: canvas.toDataURL('image/png'),
+    waktuKirim: new Date().toISOString()
+  };
+
+  if(SCRIPT_URL.includes('PASTE_URL')){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'SCRIPT_URL belum diisi. Ikuti panduan setup Google Apps Script terlebih dahulu.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Mengirim...';
+
+  try{
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    form.style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    form.reset();
+    document.getElementById('tanggal').valueAsDate = new Date();
+    lokasiField.style.display = 'none';
+    lokasiInput.required = false;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hasSignature = false;
+  }catch(err){
+    statusBox.className = 'status err';
+    statusBox.textContent = 'Gagal mengirim data. Periksa koneksi internet dan coba lagi.';
+  }finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Kirim Absensi';
+  }
+});
+
+document.getElementById('btnAgain').addEventListener('click', ()=>{
+  document.getElementById('successScreen').classList.remove('show');
+  form.style.display = 'block';
+});
+</script>
+</body>
+</html>
